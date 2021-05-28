@@ -116,7 +116,7 @@ public interface PServerConfigurationType
   @Value.Default
   default int serverThreadCount()
   {
-    return Runtime.getRuntime().availableProcessors();
+    return 8;
   }
 
   /**
