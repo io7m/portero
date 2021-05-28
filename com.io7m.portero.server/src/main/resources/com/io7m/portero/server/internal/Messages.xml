@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+  <entry key="errorTokenNonexistent">Nonexistent or expired token. Please request a new token!</entry>
+  <entry key="errorServerRegister">The Matrix server returned an error: {0}: {1}</entry>
+</properties>

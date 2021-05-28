@@ -1,0 +1,11 @@
+{
+  "user_id": "@admin:example.com",
+  "access_token": "4a3617c1b42bce4e983499630cfb2d91",
+  "home_server": "example.com",
+  "device_id": "VSSVPWMCLG",
+  "well_known": {
+    "m.homeserver": {
+      "base_url": "http://example.com/"
+    }
+  }
+}

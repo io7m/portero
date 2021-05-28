@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+
+  <entry key="mainPage"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="/static/style.css"/>
+    <title>{0}</title>
+  </head>
+  <body>
+    <div id="main">
+      <h1>{0}</h1>
+    </div>
+  </body>
+</html>]]></entry>
+
+  <entry key="signupPage"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="/static/style.css"/>
+    <title>{0}</title>
+  </head>
+  <body>
+    <div id="main">
+      <h1>{0}</h1>
+      <form action="/signup-complete/" method="post">
+        <input type="hidden" name="token" value="{1}"/>
+        <label for="user_name">Username</label>
+        <input class="form_input" type="text" id="user_name" name="user_name" />
+        <label for="email">Email</label>
+        <input class="form_input" type="text" id="email" name="email" />
+        <label for="password">Password</label>
+        <input class="form_input" type="password" id="password" name="password" />
+        <label for="password_confirm">Password (Confirm)</label>
+        <input class="form_input" type="password" id="password_confirm" name="password_confirm" />
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </body>
+</html>]]></entry>
+
+  <entry key="errorPage"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="/static/style.css"/>
+    <title>{0}: Error {1}</title>
+  </head>
+  <body>
+    <div id="main">
+      <h1>{0}</h1>
+      <h2>Error {1}</h2>
+      <p>{2}</p>
+    </div>
+  </body>
+</html>]]></entry>
+
+  <entry key="successPage"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="/static/style.css"/>
+    <title>{0}: Registered</title>
+  </head>
+  <body>
+    <div id="main">
+      <h1>{0}</h1>
+      <h2>Registration successful</h2>
+      <p>
+        Registration appears to have been successful! Please proceed to <a href="{1}">{1}</a>.
+      </p>
+    </div>
+  </body>
+</html>]]></entry>
+
+</properties>

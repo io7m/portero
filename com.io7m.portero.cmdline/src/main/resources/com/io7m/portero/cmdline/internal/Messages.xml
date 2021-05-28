@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+  <entry key="invite.help">Generate a new invite URL for a user.</entry>
+  <entry key="version.help">Show the application/server version.</entry>
+  <entry key="server.help">Start an invitation server.</entry>
+</properties>
