@@ -62,6 +62,11 @@ public final class PMainTest
     this.mockServer = startClientAndServer(10000);
     while (!this.mockServer.hasStarted()) {
       LOG.debug("waiting for mockserver to start");
+      try {
+        Thread.sleep(100L);
+      } catch (final InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
 
     this.errBase = new ByteArrayOutputStream();
@@ -84,6 +89,11 @@ public final class PMainTest
     this.mockServer.stop();
     while (!this.mockServer.hasStopped()) {
       LOG.debug("waiting for mockserver to stop");
+      try {
+        Thread.sleep(100L);
+      } catch (final InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 

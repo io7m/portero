@@ -18,6 +18,7 @@ package com.io7m.portero.tests;
 
 import com.io7m.portero.server.internal.PMatrixClient;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static com.io7m.portero.server.internal.PMatrixJSON.PError;
 import static com.io7m.portero.server.internal.PMatrixJSON.PLoginResponse;
@@ -59,8 +61,9 @@ public final class PMatrixClientTest
   public void setup()
   {
     this.httpClient = HttpClient.newHttpClient();
+
     this.mockServer = startClientAndServer(20000);
-    this.mockServer.hasStarted();
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.baseUri =
       URI.create("http://127.0.0.1:20000/");
@@ -72,12 +75,16 @@ public final class PMatrixClientTest
   public void tearDown()
   {
     LOG.debug("tearing down");
-    this.mockServer.close();
+
+    this.mockServer.stop();
+    Assertions.assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
   }
 
   @Test
   public void testRegisterErrorBadContent()
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PRegisterUsernamePasswordRequest();
     request.username = "user";
     request.password = "password";
@@ -104,6 +111,8 @@ public final class PMatrixClientTest
   public void testRegisterError()
     throws Exception
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PRegisterUsernamePasswordRequest();
     request.username = "user";
     request.password = "password";
@@ -128,6 +137,8 @@ public final class PMatrixClientTest
   public void testRegisterOK()
     throws Exception
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PRegisterUsernamePasswordRequest();
     request.username = "user";
     request.password = "password";
@@ -157,6 +168,8 @@ public final class PMatrixClientTest
   public void testLoginError()
     throws Exception
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PLoginUsernamePasswordRequest();
     request.user = "user";
     request.password = "password";
@@ -180,6 +193,8 @@ public final class PMatrixClientTest
   @Test
   public void testLoginErrorBadContent()
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PLoginUsernamePasswordRequest();
     request.user = "user";
     request.password = "password";
@@ -206,6 +221,8 @@ public final class PMatrixClientTest
   public void testLoginOK()
     throws Exception
   {
+    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     final var request = new PLoginUsernamePasswordRequest();
     request.user = "user";
     request.password = "password";
