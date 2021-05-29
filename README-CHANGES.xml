@@ -4,10 +4,10 @@
     <c:release date="2021-05-29T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="1.0.0">
       <c:changes/>
     </c:release>
-    <c:release date="2021-05-29T14:25:55+00:00" is-open="true" ticket-system="com.github.io7m.portero" version="2.0.0">
+    <c:release date="2021-05-29T14:40:19+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="2.0.0">
       <c:changes>
         <c:change date="2021-05-29T00:00:00+00:00" summary="Switch to Synapse-specific APIs for user registration"/>
-        <c:change date="2021-05-29T14:25:55+00:00" summary="Add a configuration option to control token expiration">
+        <c:change date="2021-05-29T00:00:00+00:00" summary="Add a configuration option to control token expiration">
           <c:tickets>
             <c:ticket id="2"/>
           </c:tickets>
