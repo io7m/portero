@@ -17,12 +17,13 @@
 package com.io7m.portero.tests;
 
 import com.io7m.portero.server.internal.PMatrixClient;
-import com.io7m.portero.server.internal.PMatrixJSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminNonce;
 
 public final class PRegisterDemo
 {
@@ -43,11 +44,19 @@ public final class PRegisterDemo
     final var client =
       PMatrixClient.create(httpClient, URI.create("http://10.2.250.28/"));
 
-    final var request = new PMatrixJSON.PRegisterUsernamePasswordRequest();
-    request.username = "admin";
-    request.password = "ChCUc6w8WDP3k3BXVQ==";
+    final var nonce = client.nonce();
+    LOG.debug("nonce: {}", nonce);
 
-    final var response = client.register(request);
-    LOG.debug("response: {}", response);
+    final var adminNonce = (PAdminNonce) nonce;
+
+    final var registerResponse =
+      client.register(
+        "3wojvTx/M/pGEUK3g5XlyUh/PWXIIlvyyQfrxH1S1wI=",
+        adminNonce.nonce,
+        "test1",
+        "12345678"
+      );
+
+    LOG.debug("registerResponse: {}", registerResponse);
   }
 }

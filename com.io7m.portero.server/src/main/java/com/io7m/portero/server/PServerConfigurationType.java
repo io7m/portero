@@ -42,16 +42,10 @@ public interface PServerConfigurationType
   URI matrixServerAdminConnectionURI();
 
   /**
-   * @return The admin user on the Matrix server
+   * @return The shared secret that will allow registration on the server
    */
 
-  String matrixServerAdminUser();
-
-  /**
-   * @return The admin password on the Matrix server
-   */
-
-  String matrixServerAdminPassword();
+  String matrixServerAdminRegistrationSecret();
 
   /**
    * The public URI of the Matrix server. This is the URI to which new users

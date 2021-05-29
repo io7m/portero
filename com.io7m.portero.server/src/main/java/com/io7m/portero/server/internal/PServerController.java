@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterUsernamePasswordRequest;
+import static com.io7m.portero.server.internal.PMatrixJSON.PError;
 
 /**
  * The main server controller.
@@ -126,17 +126,35 @@ public final class PServerController
     }
 
     try {
-      final var registerRequest = new PRegisterUsernamePasswordRequest();
-      registerRequest.username = request.userName();
-      registerRequest.password = request.password();
-      final var registerResponse =
-        this.client.register(registerRequest);
-
-      if (registerResponse instanceof PMatrixJSON.PError) {
-        final var error = (PMatrixJSON.PError) registerResponse;
+      final var nonceResponse = this.client.nonce();
+      if (nonceResponse instanceof PError) {
+        final var error = (PError) nonceResponse;
         throw new PServerControllerException(
           this.strings.format(
-            "errorServerRegister", error.errorCode, error.errorMessage));
+            "errorServerRegister",
+            error.errorCode,
+            error.errorMessage)
+        );
+      }
+
+      final var nonceR = (PMatrixJSON.PAdminNonce) nonceResponse;
+
+      final var registerResponse =
+        this.client.register(
+          request.registrationSharedSecret(),
+          nonceR.nonce,
+          request.userName(),
+          request.password()
+        );
+
+      if (registerResponse instanceof PError) {
+        final var error = (PError) registerResponse;
+        throw new PServerControllerException(
+          this.strings.format(
+            "errorServerRegister",
+            error.errorCode,
+            error.errorMessage)
+        );
       }
 
       this.tokens.remove(request.token());

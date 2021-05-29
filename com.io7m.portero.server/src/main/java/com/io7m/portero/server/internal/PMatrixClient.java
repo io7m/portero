@@ -17,24 +17,28 @@
 package com.io7m.portero.server.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminCreateUser;
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminCreateUserResponse;
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminNonce;
 import static com.io7m.portero.server.internal.PMatrixJSON.PError;
-import static com.io7m.portero.server.internal.PMatrixJSON.PLoginResponse;
-import static com.io7m.portero.server.internal.PMatrixJSON.PLoginUsernamePasswordRequest;
 import static com.io7m.portero.server.internal.PMatrixJSON.PMatrixJSONResponseType;
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterResponse;
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterUsernamePasswordRequest;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * An extremely minimal Matrix client.
@@ -93,9 +97,49 @@ public final class PMatrixClient
   }
 
   /**
-   * Send a user registration request.
+   * Send a Synapse-specific request for a number-used-once via the Admin API.
    *
-   * @param request The request
+   * @return A response
+   *
+   * @throws IOException          On I/O errors
+   * @throws InterruptedException If the operation is interrupted
+   */
+
+  public PMatrixJSONResponseType nonce()
+    throws IOException, InterruptedException
+  {
+    final var targetURI =
+      this.serverBaseURI.resolve("/_synapse/admin/v1/register");
+    final var httpRequest =
+      HttpRequest.newBuilder(targetURI)
+        .build();
+    final var response =
+      this.client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+
+    final var statusCode =
+      response.statusCode();
+    final var contentType =
+      response.headers().firstValue("content-type")
+        .orElse("application/octet-stream");
+
+    LOG.debug("{} status {}", targetURI, Integer.valueOf(statusCode));
+    try (var stream = response.body()) {
+      return this.parseResponse(
+        statusCode,
+        contentType,
+        stream,
+        PAdminNonce.class
+      );
+    }
+  }
+
+  /**
+   * Send a Synapse-specific user registration request via the Admin API.
+   *
+   * @param sharedSecret The shared secret used to sign the request
+   * @param nonce        The nonce
+   * @param password     The password
+   * @param userName     The user name
    *
    * @return A response
    *
@@ -104,87 +148,73 @@ public final class PMatrixClient
    */
 
   public PMatrixJSONResponseType register(
-    final PRegisterUsernamePasswordRequest request)
+    final String sharedSecret,
+    final String nonce,
+    final String userName,
+    final String password)
     throws IOException, InterruptedException
   {
-    Objects.requireNonNull(request, "request");
+    Objects.requireNonNull(sharedSecret, "sharedSecret");
+    Objects.requireNonNull(userName, "userName");
+    Objects.requireNonNull(password, "password");
 
-    LOG.trace("request: {}", request);
+    try {
+      final var keyBytes =
+        sharedSecret.getBytes(UTF_8);
+      final var signingKey =
+        new SecretKeySpec(keyBytes, "HmacSHA1");
+      final var mac =
+        Mac.getInstance("HmacSHA1");
 
-    final var targetURI =
-      this.serverBaseURI.resolve("/_matrix/client/r0/register");
-    final var serialized =
-      this.objectMapper.writeValueAsBytes(request);
-    final var httpRequest =
-      HttpRequest.newBuilder(targetURI)
-        .POST(HttpRequest.BodyPublishers.ofByteArray(serialized))
-        .header("User-Agent", agent())
-        .build();
-    final var response =
-      this.client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+      mac.init(signingKey);
+      mac.update(nonce.getBytes(UTF_8));
+      mac.update((byte) 0x0);
+      mac.update(userName.getBytes(UTF_8));
+      mac.update((byte) 0x0);
+      mac.update(password.getBytes(UTF_8));
+      mac.update((byte) 0x0);
+      mac.update("notadmin".getBytes(UTF_8));
 
-    final var statusCode =
-      response.statusCode();
-    final var contentType =
-      response.headers().firstValue("content-type")
-        .orElse("application/octet-stream");
+      final var digest =
+        mac.doFinal();
+      final var digestText =
+        Hex.encodeHexString(digest, true);
 
-    LOG.debug("{} status {}", targetURI, Integer.valueOf(statusCode));
-    try (var stream = response.body()) {
-      return this.parseResponse(
-        statusCode,
-        contentType,
-        stream,
-        PRegisterResponse.class
-      );
-    }
-  }
+      final var request = new PAdminCreateUser();
+      request.username = userName;
+      request.password = password;
+      request.nonce = nonce;
+      request.mac = digestText;
 
-  /**
-   * Send a user login request.
-   *
-   * @param request The request
-   *
-   * @return A response
-   *
-   * @throws IOException          On I/O errors
-   * @throws InterruptedException If the operation is interrupted
-   */
+      final var targetURI =
+        this.serverBaseURI.resolve("/_synapse/admin/v1/register");
+      final var serialized =
+        this.objectMapper.writeValueAsBytes(request);
+      final var httpRequest =
+        HttpRequest.newBuilder(targetURI)
+          .POST(HttpRequest.BodyPublishers.ofByteArray(serialized))
+          .header("User-Agent", agent())
+          .build();
+      final var response =
+        this.client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
 
-  public PMatrixJSONResponseType login(
-    final PLoginUsernamePasswordRequest request)
-    throws IOException, InterruptedException
-  {
-    Objects.requireNonNull(request, "request");
+      final var statusCode =
+        response.statusCode();
+      final var contentType =
+        response.headers().firstValue("content-type")
+          .orElse("application/octet-stream");
 
-    LOG.trace("request: {}", request);
-
-    final var targetURI =
-      this.serverBaseURI.resolve("/_matrix/client/r0/login");
-    final var serialized =
-      this.objectMapper.writeValueAsBytes(request);
-    final var httpRequest =
-      HttpRequest.newBuilder(targetURI)
-        .POST(HttpRequest.BodyPublishers.ofByteArray(serialized))
-        .header("User-Agent", agent())
-        .build();
-    final var response =
-      this.client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-
-    final var statusCode =
-      response.statusCode();
-    final var contentType =
-      response.headers().firstValue("content-type")
-        .orElse("application/octet-stream");
-
-    LOG.debug("{} status {}", targetURI, Integer.valueOf(statusCode));
-    try (var stream = response.body()) {
-      return this.parseResponse(
-        statusCode,
-        contentType,
-        stream,
-        PLoginResponse.class
-      );
+      LOG.debug("{} status {}", targetURI, Integer.valueOf(statusCode));
+      try (var stream = response.body()) {
+        return this.parseResponse(
+          statusCode,
+          contentType,
+          stream,
+          PAdminCreateUserResponse.class
+        );
+      }
+    } catch (final NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -204,7 +234,7 @@ public final class PMatrixClient
 
     final var data = stream.readAllBytes();
     // CHECKSTYLE:OFF
-    final var text = new String(data, StandardCharsets.UTF_8);
+    final var text = new String(data, UTF_8);
     // CHECKSTYLE:ON
     LOG.trace("received: {}", text);
 

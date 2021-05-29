@@ -48,8 +48,7 @@ public final class PServerConfigurationsTest
         .setBindPrivateAddress(InetAddress.getByName("127.0.0.2"))
         .setBindPrivatePort(20001)
         .setMatrixServerAdminConnectionURI(URI.create("http://127.0.0.1:10000/"))
-        .setMatrixServerAdminPassword("password")
-        .setMatrixServerAdminUser("admin")
+        .setMatrixServerAdminRegistrationSecret("aRatherLongSharedSecret")
         .setMatrixServerPublicURI(URI.create("https://chat.example.com"))
         .build();
 
@@ -75,8 +74,7 @@ public final class PServerConfigurationsTest
 
     Assertions.assertEquals(
       List.of(
-        "Key not found in properties: matrix.adminUser",
-        "Key not found in properties: matrix.adminPassword",
+        "Key not found in properties: matrix.adminSharedSecret",
         "Key not found in properties: matrix.publicURL",
         "Key not found in properties: server.publicPort",
         "Key not found in properties: server.publicAddress",

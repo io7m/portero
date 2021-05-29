@@ -60,10 +60,9 @@ final class PMatrixJSONDeserializers extends SimpleDeserializers
   {
     return Set.of(
       "com.io7m.portero.server.internal.PMatrixJSON.PError",
-      "com.io7m.portero.server.internal.PMatrixJSON.PLoginResponse",
-      "com.io7m.portero.server.internal.PMatrixJSON.PRegisterAuthDummy",
-      "com.io7m.portero.server.internal.PMatrixJSON.PRegisterResponse",
-      "com.io7m.portero.server.internal.PMatrixJSON.PRegisterUsernamePasswordRequest",
+      "com.io7m.portero.server.internal.PMatrixJSON.PAdminNonce",
+      "com.io7m.portero.server.internal.PMatrixJSON.PAdminCreateUser",
+      "com.io7m.portero.server.internal.PMatrixJSON.PAdminCreateUserResponse",
       "java.lang.String",
       "java.math.BigInteger",
       "java.net.URI",

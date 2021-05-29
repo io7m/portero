@@ -141,14 +141,8 @@ public final class PServerConfigurations
     });
 
     tracker.catching(() -> {
-      builder.setMatrixServerAdminUser(
-        JProperties.getString(properties, "matrix.adminUser")
-      );
-    });
-
-    tracker.catching(() -> {
-      builder.setMatrixServerAdminPassword(
-        JProperties.getString(properties, "matrix.adminPassword")
+      builder.setMatrixServerAdminRegistrationSecret(
+        JProperties.getString(properties, "matrix.adminSharedSecret")
       );
     });
 

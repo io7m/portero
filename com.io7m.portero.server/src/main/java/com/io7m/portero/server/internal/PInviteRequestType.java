@@ -28,6 +28,12 @@ import org.immutables.value.Value;
 public interface PInviteRequestType
 {
   /**
+   * @return The registration shared secret
+   */
+
+  String registrationSharedSecret();
+
+  /**
    * @return The invite token
    */
 
