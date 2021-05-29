@@ -22,7 +22,8 @@ INFO com.io7m.portero.server.internal.PServerMain: private server starting on /1
 INFO com.io7m.portero.server.internal.PServerMain: public server starting on /127.0.0.1:20000
 ```
 
-[![Architecture](src/site/resources/arch.png)](src/site/resources/arch.png)
+The `portero server` command stays running in the foreground and is designed
+to execute under a process supervision system such as [runit](http://smarden.org/runit/).
 
 Administrators send _invite requests_ to `Q`, and an invite token is returned
 to the administrator:
@@ -38,6 +39,8 @@ an account. The `portero` server serves the web form on `P` and therefore
 needs to be made accessible to the outside world over a secure connection.
 The `portero` server then creates an account on the Matrix homeserver using
 the standard [client/server API](https://matrix.org/docs/spec/client_server/r0.6.1).
+
+[![Architecture](src/site/resources/arch.png)](src/site/resources/arch.png)
 
 ### Configuration File
 

@@ -20,6 +20,7 @@ import com.io7m.portero.server.PServerConfiguration;
 import com.io7m.portero.server.internal.PServerMain;
 import org.apache.commons.io.input.CharSequenceInputStream;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockserver.integration.ClientAndServer;
@@ -35,6 +36,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
@@ -115,9 +117,7 @@ public final class PServerMainTest
       URI.create("http://127.0.0.1:10000/");
 
     this.mockServer = startClientAndServer(10000);
-    while (!this.mockServer.hasStarted()) {
-      LOG.debug("waiting for mockserver to start");
-    }
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.config =
       PServerConfiguration.builder()
@@ -145,9 +145,7 @@ public final class PServerMainTest
     this.server.stop();
 
     this.mockServer.stop();
-    while (!this.mockServer.hasStopped()) {
-      LOG.debug("waiting for mockserver to stop");
-    }
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
     LOG.debug("tore down");
   }
