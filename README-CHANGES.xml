@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <c:changelog project="com.io7m.portero" xmlns:c="urn:com.io7m.changelog:4.0">
   <c:releases>
-    <c:release date="2021-05-29T10:22:06+00:00" is-open="true" ticket-system="com.github.io7m.portero" version="1.0.0">
+    <c:release date="2021-05-29T10:27:45+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="1.0.0">
       <c:changes/>
     </c:release>
   </c:releases>
