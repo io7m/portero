@@ -109,6 +109,7 @@ public final class PServerConfigurationsTest
         "Value for key matrix.publicURL (not a url of any kind) cannot be parsed as type URI",
         "Value for key server.publicPort (x) cannot be parsed as type Integer",
         "Value for key server.privatePort (10000000000000) cannot be parsed as type int",
+        "Value for key server.tokenExpiration (not a duration) cannot be parsed as type Duration",
         "Key not found in properties: server.publicURL"
       ),
       errors

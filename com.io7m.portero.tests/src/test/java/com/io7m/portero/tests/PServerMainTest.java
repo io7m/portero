@@ -96,8 +96,14 @@ public final class PServerMainTest
       "text/plain",
       response.headers().firstValue("Content-Type").orElseThrow());
 
-    final var tokenURI = response.body();
-    final var tokenTrimmed = tokenURI.substring(tokenURI.indexOf('=') + 1).trim();
+    final var tokenURI =
+      response.body();
+    final var tokenPieces =
+      tokenURI.split("\\s+");
+    final var tokenTrimmed =
+      tokenPieces[0].substring(tokenURI.indexOf('=') + 1).trim();
+
+    LOG.debug("generated token {}", tokenTrimmed);
     return tokenTrimmed;
   }
 

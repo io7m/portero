@@ -87,13 +87,19 @@ public final class PServerMain implements PServerType
     final var httpClient =
       HttpClient.newHttpClient();
     final var client =
-      PMatrixClient.create(httpClient, configuration.matrixServerAdminConnectionURI());
+      PMatrixClient.create(
+        httpClient,
+        configuration.matrixServerAdminConnectionURI());
     final var publicServer =
       new Server(publicThreadPool);
     final var privateServer =
       new Server(privateThreadPool);
     final var controller =
-      PServerController.create(strings, client);
+      PServerController.create(
+        strings,
+        configuration.serverTokenExpiry(),
+        client
+      );
 
     final var pages = new PServerPages(configuration.locale());
     final var httpConfig = new HttpConfiguration();

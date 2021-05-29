@@ -21,6 +21,8 @@ import com.io7m.jproperties.JProperties;
 
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -115,6 +117,15 @@ public final class PServerConfigurations
     tracker.catching(() -> {
       config.setServerTitle(
         JProperties.getString(props, "server.title")
+      );
+    });
+
+    tracker.catching(() -> {
+      config.setServerTokenExpiry(
+        JProperties.getDurationWithDefault(
+          props,
+          "server.tokenExpiration",
+          Duration.of(48L, ChronoUnit.HOURS))
       );
     });
 

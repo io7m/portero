@@ -21,6 +21,7 @@ import org.immutables.value.Value;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Locale;
 
 /**
@@ -118,6 +119,16 @@ public interface PServerConfigurationType
    */
 
   String serverTitle();
+
+  /**
+   * @return The duration before a given token expires
+   */
+
+  @Value.Default
+  default Duration serverTokenExpiry()
+  {
+    return Duration.ofHours(48L);
+  }
 
   /**
    * @return The locale for string resources

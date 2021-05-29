@@ -112,6 +112,11 @@ server.title = chat.example.com
 # that can be served concurrently.
 #
 server.threadCount = 4
+
+#
+# The expiry duration for tokens, ISO 8601 duration format.
+#
+server.tokenExpiration = PT48H
 ```
 
 ### Command-line
