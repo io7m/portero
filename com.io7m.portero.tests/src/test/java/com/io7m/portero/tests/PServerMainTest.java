@@ -146,6 +146,8 @@ public final class PServerMainTest
 
     this.mockServer.stop();
     assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
     LOG.debug("tore down");
   }
@@ -331,6 +333,7 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
     this.mockServer
       .when(request())
       .respond(
@@ -361,7 +364,6 @@ public final class PServerMainTest
       this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
     assertEquals(200, response.statusCode());
-
     final var body = response.body();
     LOG.debug("received: {}", body);
     parseXML(body);
@@ -381,10 +383,13 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
     this.mockServer.stop();
     while (!this.mockServer.hasStopped()) {
       LOG.debug("waiting for mock server to stop");
     }
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
     final var bodyBuilder = new StringBuilder(128);
     bodyBuilder.append("token=");
@@ -428,6 +433,7 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
     this.mockServer
       .when(request())
       .respond(
