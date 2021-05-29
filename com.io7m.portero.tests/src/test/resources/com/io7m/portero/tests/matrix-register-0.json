@@ -1,7 +1,0 @@
-{
-  "username": "example",
-  "password": "wordpass",
-  "auth": {
-    "type": "m.login.dummy"
-  }
-}

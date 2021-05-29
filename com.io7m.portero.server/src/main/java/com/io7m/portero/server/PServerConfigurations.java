@@ -21,6 +21,8 @@ import com.io7m.jproperties.JProperties;
 
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -119,6 +121,15 @@ public final class PServerConfigurations
     });
 
     tracker.catching(() -> {
+      config.setServerTokenExpiry(
+        JProperties.getDurationWithDefault(
+          props,
+          "server.tokenExpiration",
+          Duration.of(48L, ChronoUnit.HOURS))
+      );
+    });
+
+    tracker.catching(() -> {
       config.setPublicURI(JProperties.getURI(props, "server.publicURL"));
     });
 
@@ -141,14 +152,8 @@ public final class PServerConfigurations
     });
 
     tracker.catching(() -> {
-      builder.setMatrixServerAdminUser(
-        JProperties.getString(properties, "matrix.adminUser")
-      );
-    });
-
-    tracker.catching(() -> {
-      builder.setMatrixServerAdminPassword(
-        JProperties.getString(properties, "matrix.adminPassword")
+      builder.setMatrixServerAdminRegistrationSecret(
+        JProperties.getString(properties, "matrix.adminSharedSecret")
       );
     });
 

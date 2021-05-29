@@ -34,21 +34,6 @@ public final class PMatrixJSONTest
   }
 
   @Test
-  public void testMatrixRegister0()
-    throws Exception
-  {
-    final var object =
-      this.mapper.readValue(
-        PTestResources.resourceText("matrix-register-0.json"),
-        PMatrixJSON.PRegisterUsernamePasswordRequest.class
-      );
-
-    Assertions.assertEquals("example", object.username);
-    Assertions.assertEquals("wordpass", object.password);
-    Assertions.assertEquals("m.login.dummy", object.auth.type);
-  }
-
-  @Test
   public void testError0()
     throws Exception
   {

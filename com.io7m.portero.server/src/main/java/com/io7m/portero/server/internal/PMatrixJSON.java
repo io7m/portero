@@ -79,13 +79,13 @@ public final class PMatrixJSON
 
   @JsonDeserialize
   @JsonSerialize
-  public static final class PRegisterAuthDummy
-    implements PMatrixJSONObjectType
+  public static final class PAdminNonce
+    implements PMatrixJSONResponseType
   {
-    @JsonProperty(required = true, value = "type")
-    public String type = "m.login.dummy";
+    @JsonProperty(required = true, value = "nonce")
+    public String nonce;
 
-    public PRegisterAuthDummy()
+    public PAdminNonce()
     {
 
     }
@@ -93,28 +93,29 @@ public final class PMatrixJSON
     @Override
     public String toString()
     {
-      return new StringJoiner(
-        ", ",
-        PRegisterAuthDummy.class.getSimpleName() + "[",
-        "]")
-        .add("type='" + this.type + "'")
-        .toString();
+      final StringBuilder sb = new StringBuilder("PAdminNonce{");
+      sb.append("nonce='").append(this.nonce).append('\'');
+      sb.append('}');
+      return sb.toString();
     }
   }
 
   @JsonDeserialize
   @JsonSerialize
-  public static final class PRegisterUsernamePasswordRequest
-    implements PMatrixJSONObjectType
+  public static final class PAdminCreateUser
   {
+    @JsonProperty(required = true, value = "admin")
+    public final boolean admin = false;
+    @JsonProperty(required = true, value = "nonce")
+    public String nonce;
     @JsonProperty(required = true, value = "username")
     public String username;
     @JsonProperty(required = true, value = "password")
     public String password;
-    @JsonProperty(required = true, value = "auth")
-    public PRegisterAuthDummy auth = new PRegisterAuthDummy();
+    @JsonProperty(required = true, value = "mac")
+    public String mac;
 
-    public PRegisterUsernamePasswordRequest()
+    public PAdminCreateUser()
     {
 
     }
@@ -122,61 +123,33 @@ public final class PMatrixJSON
     @Override
     public String toString()
     {
-      return new StringJoiner(
-        ", ",
-        PRegisterUsernamePasswordRequest.class.getSimpleName() + "[",
-        "]")
-        .add("username='" + this.username + "'")
-        .add("password='" + this.password + "'")
-        .add("auth=" + this.auth)
-        .toString();
+      final StringBuilder sb = new StringBuilder(
+        "PAdminCreateUser{");
+      sb.append("nonce='").append(this.nonce).append('\'');
+      sb.append(", username='").append(this.username).append('\'');
+      sb.append(", password='").append(this.password).append('\'');
+      sb.append(", admin=").append(this.admin);
+      sb.append(", mac='").append(this.mac).append('\'');
+      sb.append('}');
+      return sb.toString();
     }
   }
 
   @JsonDeserialize
   @JsonSerialize
-  public static final class PLoginUsernamePasswordRequest
-    implements PMatrixJSONObjectType
-  {
-    @JsonProperty(required = true, value = "type")
-    public final String type = "m.login.password";
-    @JsonProperty(required = true, value = "user")
-    public String user;
-    @JsonProperty(required = true, value = "password")
-    public String password;
-
-    public PLoginUsernamePasswordRequest()
-    {
-
-    }
-
-    @Override
-    public String toString()
-    {
-      return new StringJoiner(
-        ", ",
-        PLoginUsernamePasswordRequest.class.getSimpleName() + "[",
-        "]")
-        .add("user='" + this.user + "'")
-        .add("password='" + this.password + "'")
-        .add("type='" + this.type + "'")
-        .toString();
-    }
-  }
-
-  @JsonDeserialize
-  @JsonSerialize
-  public static final class PLoginResponse
+  public static final class PAdminCreateUserResponse
     implements PMatrixJSONResponseType
   {
     @JsonProperty(required = true, value = "access_token")
     public String accessToken;
-    @JsonProperty(required = true, value = "home_server")
-    public String homeServer;
     @JsonProperty(required = true, value = "user_id")
     public String userId;
+    @JsonProperty(required = true, value = "home_server")
+    public String homeServer;
+    @JsonProperty(required = true, value = "device_id")
+    public String deviceId;
 
-    public PLoginResponse()
+    public PAdminCreateUserResponse()
     {
 
     }
@@ -184,45 +157,14 @@ public final class PMatrixJSON
     @Override
     public String toString()
     {
-      return new StringJoiner(
-        ", ",
-        PRegisterResponse.class.getSimpleName() + "[",
-        "]")
-        .add("accessToken='" + this.accessToken + "'")
-        .add("homeServer='" + this.homeServer + "'")
-        .add("userId='" + this.userId + "'")
-        .toString();
-    }
-  }
-
-  @JsonDeserialize
-  @JsonSerialize
-  public static final class PRegisterResponse
-    implements PMatrixJSONResponseType
-  {
-    @JsonProperty(required = true, value = "access_token")
-    public String accessToken;
-    @JsonProperty(required = true, value = "home_server")
-    public String homeServer;
-    @JsonProperty(required = true, value = "user_id")
-    public String userId;
-
-    public PRegisterResponse()
-    {
-
-    }
-
-    @Override
-    public String toString()
-    {
-      return new StringJoiner(
-        ", ",
-        PRegisterResponse.class.getSimpleName() + "[",
-        "]")
-        .add("accessToken='" + this.accessToken + "'")
-        .add("homeServer='" + this.homeServer + "'")
-        .add("userId='" + this.userId + "'")
-        .toString();
+      final StringBuilder sb = new StringBuilder(
+        "PAdminCreateUserResponse{");
+      sb.append("accessToken='").append(this.accessToken).append('\'');
+      sb.append(", userId='").append(this.userId).append('\'');
+      sb.append(", homeServer='").append(this.homeServer).append('\'');
+      sb.append(", deviceId='").append(this.deviceId).append('\'');
+      sb.append('}');
+      return sb.toString();
     }
   }
 }

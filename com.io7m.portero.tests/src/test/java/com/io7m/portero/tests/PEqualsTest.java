@@ -16,39 +16,35 @@
 
 package com.io7m.portero.tests;
 
-import com.io7m.portero.server.internal.PMatrixClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
-import java.net.URI;
-import java.net.http.HttpClient;
+import java.util.stream.Stream;
 
-import static com.io7m.portero.server.internal.PMatrixJSON.PLoginUsernamePasswordRequest;
-
-public final class PLoginDemo
+public final class PEqualsTest
 {
-  private static final Logger LOG =
-    LoggerFactory.getLogger(PLoginDemo.class);
-
-  private PLoginDemo()
+  @TestFactory
+  public Stream<DynamicTest> testEquals()
   {
-
+    return Stream.of(
+      com.io7m.portero.server.internal.PInviteRequest.class,
+      com.io7m.portero.server.PServerConfiguration.class)
+      .map(this::testOf);
   }
 
-  public static void main(
-    final String[] args)
-    throws Exception
+  private DynamicTest testOf(
+    final Class<? extends Object> aClass)
   {
-    final var httpClient =
-      HttpClient.newHttpClient();
-    final var client =
-      PMatrixClient.create(httpClient, URI.create("http://10.2.250.28/"));
-
-    final var request = new PLoginUsernamePasswordRequest();
-    request.user = "admin";
-    request.password = "ChCUc6w8WDP3k3BXVQ==";
-
-    final var response = client.login(request);
-    LOG.debug("response: {}", response);
+    return DynamicTest.dynamicTest(
+      String.format(
+        "testEquals_%s",
+        aClass.getCanonicalName()),
+      () -> {
+        EqualsVerifier.forClass(aClass)
+          .suppress(Warning.NULL_FIELDS)
+          .verify();
+      });
   }
 }

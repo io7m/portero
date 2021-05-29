@@ -25,6 +25,9 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -62,13 +65,29 @@ public final class PServerInviteHandler extends AbstractHandler
     response.setContentType("text/plain");
 
     try (var output = response.getOutputStream()) {
-      output.println(
-        this.configuration.publicURI()
-          .resolve(String.format("/signup/?token=%s", token))
-          .toString()
-      );
+      output.println(this.tokenURI(token));
+      output.println();
+      output.println(this.tokenExpiration());
       output.flush();
     }
     baseRequest.setHandled(true);
+  }
+
+  private String tokenURI(
+    final String token)
+  {
+    return this.configuration.publicURI()
+      .resolve(String.format("/signup/?token=%s", token))
+      .toString();
+  }
+
+  private String tokenExpiration()
+  {
+    final var timeNow =
+      OffsetDateTime.now(ZoneId.of("UTC"));
+    final var timeThen =
+      timeNow.plus(this.configuration.serverTokenExpiry());
+    return "The token will expire at "
+      + DateTimeFormatter.ISO_DATE_TIME.format(timeThen);
   }
 }

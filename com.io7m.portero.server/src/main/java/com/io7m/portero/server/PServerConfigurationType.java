@@ -21,6 +21,7 @@ import org.immutables.value.Value;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Locale;
 
 /**
@@ -42,16 +43,10 @@ public interface PServerConfigurationType
   URI matrixServerAdminConnectionURI();
 
   /**
-   * @return The admin user on the Matrix server
+   * @return The shared secret that will allow registration on the server
    */
 
-  String matrixServerAdminUser();
-
-  /**
-   * @return The admin password on the Matrix server
-   */
-
-  String matrixServerAdminPassword();
+  String matrixServerAdminRegistrationSecret();
 
   /**
    * The public URI of the Matrix server. This is the URI to which new users
@@ -124,6 +119,16 @@ public interface PServerConfigurationType
    */
 
   String serverTitle();
+
+  /**
+   * @return The duration before a given token expires
+   */
+
+  @Value.Default
+  default Duration serverTokenExpiry()
+  {
+    return Duration.ofHours(48L);
+  }
 
   /**
    * @return The locale for string resources

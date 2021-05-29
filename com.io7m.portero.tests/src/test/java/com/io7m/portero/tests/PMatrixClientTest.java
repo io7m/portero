@@ -18,7 +18,6 @@ package com.io7m.portero.tests;
 
 import com.io7m.portero.server.internal.PMatrixClient;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -26,20 +25,18 @@ import org.mockserver.model.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminCreateUserResponse;
+import static com.io7m.portero.server.internal.PMatrixJSON.PAdminNonce;
 import static com.io7m.portero.server.internal.PMatrixJSON.PError;
-import static com.io7m.portero.server.internal.PMatrixJSON.PLoginResponse;
-import static com.io7m.portero.server.internal.PMatrixJSON.PLoginUsernamePasswordRequest;
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterResponse;
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterUsernamePasswordRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeout;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -63,7 +60,7 @@ public final class PMatrixClientTest
     this.httpClient = HttpClient.newHttpClient();
 
     this.mockServer = startClientAndServer(20000);
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.baseUri =
       URI.create("http://127.0.0.1:20000/");
@@ -77,173 +74,122 @@ public final class PMatrixClientTest
     LOG.debug("tearing down");
 
     this.mockServer.stop();
-    Assertions.assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
   }
 
   @Test
-  public void testRegisterErrorBadContent()
+  public void testNonceError()
+    throws Exception
   {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
-
-    final var request = new PRegisterUsernamePasswordRequest();
-    request.username = "user";
-    request.password = "password";
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.mockServer
-      .when(request())
+      .when(request("/_synapse/admin/v1/register"))
       .respond(
         response()
-          .withStatusCode(403)
-          .withContentType(MediaType.TEXT_PLAIN)
-          .withBody("What?"));
+          .withStatusCode(400)
+          .withContentType(MediaType.APPLICATION_JSON)
+          .withBody(PTestResources.resourceText("matrix-error-0.json")));
 
-    final var ex =
-      assertThrows(IOException.class, () -> {
-        assertTimeout(REQUEST_TIMEOUT, () -> this.client.register(request));
-      });
+    final var error = (PError) this.client.nonce();
+    assertEquals("M_BAD_JSON", error.errorCode);
+    assertEquals("Bad JSON", error.errorMessage);
+  }
 
+  @Test
+  public void testNonceOK()
+    throws Exception
+  {
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
+    this.mockServer
+      .when(request("/_synapse/admin/v1/register"))
+      .respond(
+        response()
+          .withStatusCode(200)
+          .withContentType(MediaType.APPLICATION_JSON)
+          .withBody(PTestResources.resourceText("matrix-nonce-0.json")));
+
+    final var nonce = (PAdminNonce) this.client.nonce();
     assertEquals(
-      "Server responded with an unexpected content type 'text/plain'",
-      ex.getMessage());
+      "69b5b3da2e2e04b3a7f9426a13bba18b464217ba60117fd0541e9b90f1265083",
+      nonce.nonce);
+  }
+
+  @Test
+  public void testNonceErrorFailure()
+  {
+    this.mockServer.stop();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+
+    assertThrows(ConnectException.class, () -> this.client.nonce());
   }
 
   @Test
   public void testRegisterError()
     throws Exception
   {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
-
-    final var request = new PRegisterUsernamePasswordRequest();
-    request.username = "user";
-    request.password = "password";
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.mockServer
-      .when(request())
+      .when(request("/_synapse/admin/v1/register"))
       .respond(
         response()
-          .withStatusCode(403)
+          .withStatusCode(400)
           .withContentType(MediaType.APPLICATION_JSON)
           .withBody(PTestResources.resourceText("matrix-error-0.json")));
 
-    final var response =
-      (PError) assertTimeout(
-        REQUEST_TIMEOUT, () -> this.client.register(request));
-
-    assertEquals("M_BAD_JSON", response.errorCode);
-    assertEquals("Bad JSON", response.errorMessage);
+    final var error = (PError) this.client.register(
+      "abcd",
+      "nonce",
+      "user",
+      "password");
+    assertEquals("M_BAD_JSON", error.errorCode);
+    assertEquals("Bad JSON", error.errorMessage);
   }
 
   @Test
   public void testRegisterOK()
     throws Exception
   {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
-
-    final var request = new PRegisterUsernamePasswordRequest();
-    request.username = "user";
-    request.password = "password";
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
 
     this.mockServer
-      .when(request())
+      .when(request("/_synapse/admin/v1/register"))
       .respond(
         response()
           .withStatusCode(200)
           .withContentType(MediaType.APPLICATION_JSON)
-          .withBody(PTestResources.resourceText(
-            "matrix-register-response-0.json")));
+          .withBody(PTestResources.resourceText("matrix-create-user-0.json")));
 
-    final var response =
-      (PRegisterResponse) assertTimeout(
-        REQUEST_TIMEOUT, () -> this.client.register(request));
-
-    assertEquals(
-      "523aee45f8db404c05373a61bb95ad6d",
-      response.accessToken);
-    assertEquals("localhost", response.homeServer);
-    assertEquals("@example:localhost", response.userId);
-  }
-
-
-  @Test
-  public void testLoginError()
-    throws Exception
-  {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
-
-    final var request = new PLoginUsernamePasswordRequest();
-    request.user = "user";
-    request.password = "password";
-
-    this.mockServer
-      .when(request())
-      .respond(
-        response()
-          .withStatusCode(403)
-          .withContentType(MediaType.APPLICATION_JSON)
-          .withBody(PTestResources.resourceText("matrix-error-0.json")));
-
-    final var response =
-      (PError) assertTimeout(
-        REQUEST_TIMEOUT, () -> this.client.login(request));
-
-    assertEquals("M_BAD_JSON", response.errorCode);
-    assertEquals("Bad JSON", response.errorMessage);
+    final var user = (PAdminCreateUserResponse) this.client.register(
+      "abcd",
+      "nonce",
+      "user",
+      "password");
+    assertEquals("@admin:example.com", user.userId);
+    assertEquals("4a3617c1b42bce4e983499630cfb2d91", user.accessToken);
+    assertEquals("VSSVPWMCLG", user.deviceId);
+    assertEquals("example.com", user.homeServer);
   }
 
   @Test
-  public void testLoginErrorBadContent()
+  public void testRegisterErrorFailure()
   {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.stop();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
-    final var request = new PLoginUsernamePasswordRequest();
-    request.user = "user";
-    request.password = "password";
-
-    this.mockServer
-      .when(request())
-      .respond(
-        response()
-          .withStatusCode(403)
-          .withContentType(MediaType.TEXT_PLAIN)
-          .withBody("What?"));
-
-    final var ex =
-      assertThrows(IOException.class, () -> {
-        assertTimeout(REQUEST_TIMEOUT, () -> this.client.login(request));
-      });
-
-    assertEquals(
-      "Server responded with an unexpected content type 'text/plain'",
-      ex.getMessage());
-  }
-
-  @Test
-  public void testLoginOK()
-    throws Exception
-  {
-    Assertions.assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
-
-    final var request = new PLoginUsernamePasswordRequest();
-    request.user = "user";
-    request.password = "password";
-
-    this.mockServer
-      .when(request())
-      .respond(
-        response()
-          .withStatusCode(200)
-          .withContentType(MediaType.APPLICATION_JSON)
-          .withBody(PTestResources.resourceText(
-            "matrix-login-response-0.json")));
-
-    final var response =
-      (PLoginResponse) assertTimeout(
-        REQUEST_TIMEOUT, () -> this.client.login(request));
-
-    assertEquals(
-      "4a3617c1b42bce4e983499630cfb2d91",
-      response.accessToken);
-    assertEquals("example.com", response.homeServer);
-    assertEquals("@admin:example.com", response.userId);
+    assertThrows(
+      ConnectException.class,
+      () -> this.client.register("abcd",
+                                 "nonce",
+                                 "user",
+                                 "password"));
   }
 }

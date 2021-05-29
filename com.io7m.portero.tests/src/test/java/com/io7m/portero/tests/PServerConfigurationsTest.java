@@ -48,8 +48,7 @@ public final class PServerConfigurationsTest
         .setBindPrivateAddress(InetAddress.getByName("127.0.0.2"))
         .setBindPrivatePort(20001)
         .setMatrixServerAdminConnectionURI(URI.create("http://127.0.0.1:10000/"))
-        .setMatrixServerAdminPassword("password")
-        .setMatrixServerAdminUser("admin")
+        .setMatrixServerAdminRegistrationSecret("aRatherLongSharedSecret")
         .setMatrixServerPublicURI(URI.create("https://chat.example.com"))
         .build();
 
@@ -75,8 +74,7 @@ public final class PServerConfigurationsTest
 
     Assertions.assertEquals(
       List.of(
-        "Key not found in properties: matrix.adminUser",
-        "Key not found in properties: matrix.adminPassword",
+        "Key not found in properties: matrix.adminSharedSecret",
         "Key not found in properties: matrix.publicURL",
         "Key not found in properties: server.publicPort",
         "Key not found in properties: server.publicAddress",
@@ -111,6 +109,7 @@ public final class PServerConfigurationsTest
         "Value for key matrix.publicURL (not a url of any kind) cannot be parsed as type URI",
         "Value for key server.publicPort (x) cannot be parsed as type Integer",
         "Value for key server.privatePort (10000000000000) cannot be parsed as type int",
+        "Value for key server.tokenExpiration (not a duration) cannot be parsed as type Duration",
         "Key not found in properties: server.publicURL"
       ),
       errors

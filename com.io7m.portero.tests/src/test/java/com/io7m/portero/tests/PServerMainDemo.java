@@ -36,15 +36,15 @@ public final class PServerMainDemo
     final var config =
       PServerConfiguration.builder()
         .setMatrixServerPublicURI(URI.create("http://chat.example.com"))
-        .setMatrixServerAdminConnectionURI(URI.create("http://www.example.com"))
-        .setMatrixServerAdminUser("admin")
-        .setMatrixServerAdminPassword("password")
+        .setMatrixServerAdminConnectionURI(URI.create("http://10.2.250.28/"))
+        .setMatrixServerAdminRegistrationSecret(
+          "3wojvTx/M/pGEUK3g5XlyUh/PWXIIlvyyQfrxH1S1wI=")
         .setBindPrivateAddress(InetAddress.getByName("127.0.0.1"))
         .setBindPrivatePort(20001)
         .setBindPublicAddress(InetAddress.getByName("127.0.0.1"))
         .setBindPublicPort(20000)
         .setServerTitle("chat.example.com")
-        .setPublicURI(URI.create("http://invite.example.com"))
+        .setPublicURI(URI.create("http://127.0.0.1:20000/"))
         .build();
 
     final var server = PServerMain.create(config);

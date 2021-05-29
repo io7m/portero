@@ -7,6 +7,12 @@
   * ISC license
   * High-coverage automated test suite
 
+### Support
+
+The `portero` package only works with the [Synapse](https://github.com/matrix-org/synapse)
+homeserver at present. Support for other servers is conditional upon them adding
+a usable API for registering users with public registration disabled.
+
 ### Usage
 
 The `portero` package is designed to be deployed onto the same server as
@@ -38,7 +44,7 @@ provided URL and be taken through a simple web form in order to create
 an account. The `portero` server serves the web form on `P` and therefore
 needs to be made accessible to the outside world over a secure connection.
 The `portero` server then creates an account on the Matrix homeserver using
-the standard [client/server API](https://matrix.org/docs/spec/client_server/r0.6.1).
+the [Synapse-specific Admin API](https://github.com/matrix-org/synapse/blob/master/docs/admin_api/register_api.rst).
 
 [![Architecture](src/site/resources/arch.png)](src/site/resources/arch.png)
 
@@ -46,10 +52,9 @@ the standard [client/server API](https://matrix.org/docs/spec/client_server/r0.6
 
 ```
 #
-# The username and password of an administrator on the Matrix homeserver.
+# The registration shared secret on the Matrix homeserver.
 #
-matrix.adminUser = admin
-matrix.adminPassword = password
+matrix.adminSharedSecret = aRatherLongSharedSecret
 
 #
 # The URL by which the portero server speaks to the Matrix homeserver.
@@ -92,6 +97,11 @@ server.title = chat.example.com
 # that can be served concurrently.
 #
 server.threadCount = 4
+
+#
+# The expiry duration for tokens, ISO 8601 duration format.
+#
+server.tokenExpiration = PT48H
 ```
 
 ### Command-line

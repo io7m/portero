@@ -12,7 +12,7 @@
 
   <groupId>com.io7m.portero</groupId>
   <artifactId>com.io7m.portero</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
   <packaging>pom</packaging>
 
   <description>Matrix server registration gatekeeper</description>
@@ -213,7 +213,7 @@
       <dependency>
         <groupId>com.io7m.jproperties</groupId>
         <artifactId>com.io7m.jproperties.core</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jdeferthrow</groupId>

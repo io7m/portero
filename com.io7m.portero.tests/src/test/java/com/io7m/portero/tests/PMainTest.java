@@ -56,6 +56,39 @@ public final class PMainTest
   private String outText;
   private ClientAndServer mockServer;
 
+  private static Path writeStandardConfigurationFile(
+    final int privatePort,
+    final int publicPort)
+    throws IOException
+  {
+    final var configFile =
+      Files.createTempFile("server", "properties");
+
+    try (var writer = Files.newBufferedWriter(configFile)) {
+      List.of(
+        "matrix.adminSharedSecret = 60c6168d-ea7d-44b7-acb8-e80d8edddbf5",
+        "matrix.adminURL = http://127.0.0.1:30000/",
+        "matrix.publicURL = https://chat.example.com",
+        "server.privateAddress = 127.0.0.1",
+        "server.privatePort = " + privatePort,
+        "server.publicAddress = 127.0.0.1",
+        "server.publicPort = " + publicPort,
+        "server.publicURL = https://invite.example.com/",
+        "server.threadCount = 4",
+        "server.title = chat.example.com")
+        .forEach(line -> {
+          try {
+            writer.write(line);
+            writer.newLine();
+          } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
+      writer.flush();
+    }
+    return configFile;
+  }
+
   @BeforeEach
   public void setup()
   {
@@ -196,40 +229,6 @@ public final class PMainTest
       configFile.toString()
     }, 0);
     Assertions.assertTrue(this.outText.contains("https://result/?token=abcd"));
-  }
-
-  private static Path writeStandardConfigurationFile(
-    final int privatePort,
-    final int publicPort)
-    throws IOException
-  {
-    final var configFile =
-      Files.createTempFile("server", "properties");
-
-    try (var writer = Files.newBufferedWriter(configFile)) {
-      List.of(
-        "matrix.adminPassword = password",
-        "matrix.adminURL = http://127.0.0.1:30000/",
-        "matrix.adminUser = admin",
-        "matrix.publicURL = https://chat.example.com",
-        "server.privateAddress = 127.0.0.1",
-        "server.privatePort = " + privatePort,
-        "server.publicAddress = 127.0.0.1",
-        "server.publicPort = " + publicPort,
-        "server.publicURL = https://invite.example.com/",
-        "server.threadCount = 4",
-        "server.title = chat.example.com")
-        .forEach(line -> {
-          try {
-            writer.write(line);
-            writer.newLine();
-          } catch (final IOException e) {
-            throw new UncheckedIOException(e);
-          }
-        });
-      writer.flush();
-    }
-    return configFile;
   }
 
   @Test

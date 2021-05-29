@@ -20,7 +20,6 @@ import com.io7m.portero.server.PServerConfiguration;
 import com.io7m.portero.server.internal.PServerMain;
 import org.apache.commons.io.input.CharSequenceInputStream;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockserver.integration.ClientAndServer;
@@ -50,27 +49,6 @@ public final class PServerMainTest
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(PServerMainTest.class);
-
-  private String generateToken()
-    throws IOException, InterruptedException
-  {
-    final var request =
-      HttpRequest.newBuilder(this.privateBaseUri)
-        .build();
-
-    final var response =
-      this.client.send(request, HttpResponse.BodyHandlers.ofString());
-
-    assertEquals(200, response.statusCode());
-    assertEquals(
-      "text/plain",
-      response.headers().firstValue("Content-Type").orElseThrow());
-
-    final var tokenURI = response.body();
-    final var tokenTrimmed = tokenURI.substring(tokenURI.indexOf('=') + 1).trim();
-    return tokenTrimmed;
-  }
-
   private PServerConfiguration config;
   private PServerMain server;
   private HttpClient client;
@@ -103,6 +81,32 @@ public final class PServerMainTest
     }
   }
 
+  private String generateToken()
+    throws IOException, InterruptedException
+  {
+    final var request =
+      HttpRequest.newBuilder(this.privateBaseUri)
+        .build();
+
+    final var response =
+      this.client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    assertEquals(200, response.statusCode());
+    assertEquals(
+      "text/plain",
+      response.headers().firstValue("Content-Type").orElseThrow());
+
+    final var tokenURI =
+      response.body();
+    final var tokenPieces =
+      tokenURI.split("\\s+");
+    final var tokenTrimmed =
+      tokenPieces[0].substring(tokenURI.indexOf('=') + 1).trim();
+
+    LOG.debug("generated token {}", tokenTrimmed);
+    return tokenTrimmed;
+  }
+
   @BeforeEach
   public void setup()
     throws Exception
@@ -122,8 +126,8 @@ public final class PServerMainTest
     this.config =
       PServerConfiguration.builder()
         .setMatrixServerAdminConnectionURI(this.matrixBaseUri)
-        .setMatrixServerAdminUser("admin")
-        .setMatrixServerAdminPassword("password")
+        .setMatrixServerAdminRegistrationSecret(
+          "b07b6614ecb96d689f835e4798f24e05b552d12aedfbda2ff54fb610cd2b0e29")
         .setBindPrivateAddress(InetAddress.getByName("127.0.0.1"))
         .setBindPrivatePort(20001)
         .setBindPublicAddress(InetAddress.getByName("127.0.0.1"))
@@ -145,6 +149,8 @@ public final class PServerMainTest
     this.server.stop();
 
     this.mockServer.stop();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
+    this.mockServer.close();
     assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
     LOG.debug("tore down");
@@ -331,13 +337,23 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
+
     this.mockServer
-      .when(request())
+      .when(request("/_synapse/admin/v1/register"))
       .respond(
         response()
           .withStatusCode(200)
           .withContentType(MediaType.APPLICATION_JSON)
-          .withBody(PTestResources.resourceText("matrix-register-response-0.json")));
+          .withBody(PTestResources.resourceText("matrix-nonce-0.json")));
+
+    this.mockServer
+      .when(request("/_synapse/admin/v1/register"))
+      .respond(
+        response()
+          .withStatusCode(200)
+          .withContentType(MediaType.APPLICATION_JSON)
+          .withBody(PTestResources.resourceText("matrix-create-user-0.json")));
 
     final var bodyBuilder = new StringBuilder(128);
     bodyBuilder.append("token=");
@@ -361,7 +377,6 @@ public final class PServerMainTest
       this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
     assertEquals(200, response.statusCode());
-
     final var body = response.body();
     LOG.debug("received: {}", body);
     parseXML(body);
@@ -381,10 +396,13 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
     this.mockServer.stop();
     while (!this.mockServer.hasStopped()) {
       LOG.debug("waiting for mock server to stop");
     }
+    this.mockServer.close();
+    assertTrue(this.mockServer.hasStopped(100, 5L, TimeUnit.SECONDS));
 
     final var bodyBuilder = new StringBuilder(128);
     bodyBuilder.append("token=");
@@ -428,6 +446,7 @@ public final class PServerMainTest
   {
     final String token = this.generateToken();
 
+    assertTrue(this.mockServer.hasStarted(100, 5L, TimeUnit.SECONDS));
     this.mockServer
       .when(request())
       .respond(
@@ -464,7 +483,8 @@ public final class PServerMainTest
     parseXML(body);
     assertTrue(body.contains("chat.example.com"));
     assertTrue(body.contains("Error 400"));
-    assertTrue(body.contains("The Matrix server returned an error: M_BAD_JSON: Bad JSON"));
+    assertTrue(body.contains(
+      "The Matrix server returned an error: M_BAD_JSON: Bad JSON"));
   }
 
   /**
@@ -699,6 +719,7 @@ public final class PServerMainTest
     parseXML(body);
     assertTrue(body.contains("chat.example.com"));
     assertTrue(body.contains("400"));
-    assertTrue(body.contains("Password confirmation does not match the password."));
+    assertTrue(body.contains(
+      "Password confirmation does not match the password."));
   }
 }

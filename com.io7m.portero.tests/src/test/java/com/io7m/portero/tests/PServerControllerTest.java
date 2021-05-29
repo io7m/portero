@@ -17,46 +17,35 @@
 package com.io7m.portero.tests;
 
 import com.io7m.portero.server.internal.PMatrixClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.io7m.portero.server.internal.PServerController;
+import com.io7m.portero.server.internal.PServerStrings;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.time.Duration;
+import java.util.Locale;
 
-import static com.io7m.portero.server.internal.PMatrixJSON.PAdminNonce;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public final class PRegisterDemo
+public final class PServerControllerTest
 {
-  private static final Logger LOG =
-    LoggerFactory.getLogger(PRegisterDemo.class);
-
-  private PRegisterDemo()
-  {
-
-  }
-
-  public static void main(
-    final String[] args)
+  @Test
+  public void testExpiration()
     throws Exception
   {
-    final var httpClient =
-      HttpClient.newHttpClient();
-    final var client =
-      PMatrixClient.create(httpClient, URI.create("http://10.2.250.28/"));
-
-    final var nonce = client.nonce();
-    LOG.debug("nonce: {}", nonce);
-
-    final var adminNonce = (PAdminNonce) nonce;
-
-    final var registerResponse =
-      client.register(
-        "3wojvTx/M/pGEUK3g5XlyUh/PWXIIlvyyQfrxH1S1wI=",
-        adminNonce.nonce,
-        "test1",
-        "12345678"
+    final var controller =
+      PServerController.create(
+        new PServerStrings(Locale.getDefault()),
+        Duration.ofSeconds(1L),
+        PMatrixClient.create(
+          HttpClient.newHttpClient(),
+          URI.create("http://example.com/"))
       );
 
-    LOG.debug("registerResponse: {}", registerResponse);
+    controller.generateToken();
+    assertEquals(1, controller.tokenCount());
+    Thread.sleep(Duration.ofSeconds(2L).toMillis());
+    assertEquals(0, controller.tokenCount());
   }
 }

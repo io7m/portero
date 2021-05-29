@@ -109,6 +109,7 @@ public final class PServerSignupCompleteHandler extends AbstractHandler
           .setToken(token)
           .setPassword(password)
           .setUserName(user)
+          .setRegistrationSharedSecret(this.configuration.matrixServerAdminRegistrationSecret())
           .build()
       );
       this.pages.sendPage(

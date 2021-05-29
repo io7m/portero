@@ -24,12 +24,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.io7m.portero.server.internal.PMatrixJSON.PRegisterUsernamePasswordRequest;
+import static com.io7m.portero.server.internal.PMatrixJSON.PError;
 
 /**
  * The main server controller.
@@ -46,9 +47,12 @@ public final class PServerController
   private final PMatrixClient client;
 
   private PServerController(
+    final Duration inExpiry,
     final PServerStrings inStrings,
     final PMatrixClient inClient)
   {
+    Objects.requireNonNull(inExpiry, "inExpiry");
+
     this.strings =
       Objects.requireNonNull(inStrings, "strings");
     this.client =
@@ -58,7 +62,8 @@ public final class PServerController
       this.tokens =
         Collections.synchronizedMap(
           ExpiringMap.builder()
-            .expiration(48L, TimeUnit.HOURS)
+            .expiration(inExpiry.toSeconds(), TimeUnit.SECONDS)
+            .expirationListener(PServerController::onExpired)
             .build()
         );
 
@@ -68,20 +73,29 @@ public final class PServerController
     }
   }
 
+  private static void onExpired(
+    final String key,
+    final String value)
+  {
+    LOG.info("token {} expired", key);
+  }
+
   /**
    * Create a new server controller.
    *
-   * @param strings String resources
-   * @param client  The client
+   * @param inExpiry The expiration time for individual tokens
+   * @param strings  String resources
+   * @param client   The client
    *
    * @return A new server controller
    */
 
   public static PServerController create(
     final PServerStrings strings,
+    final Duration inExpiry,
     final PMatrixClient client)
   {
-    return new PServerController(strings, client);
+    return new PServerController(inExpiry, strings, client);
   }
 
   /**
@@ -93,7 +107,7 @@ public final class PServerController
   public String generateToken()
   {
     while (true) {
-      final var data = new byte[16];
+      final var data = new byte[32];
       this.rng.nextBytes(data);
       final var token = Hex.encodeHexString(data, true);
       if (!this.tokens.containsKey(token)) {
@@ -119,30 +133,64 @@ public final class PServerController
   {
     Objects.requireNonNull(request, "request");
 
-    if (!this.tokens.containsKey(request.token())) {
-      LOG.warn("nonexistent token: {}", request.token());
+    final var token = request.token();
+    if (!this.tokens.containsKey(token)) {
+      LOG.warn("nonexistent token: {}", token);
       throw new PServerControllerException(
         this.strings.format("errorTokenNonexistent"));
     }
 
     try {
-      final var registerRequest = new PRegisterUsernamePasswordRequest();
-      registerRequest.username = request.userName();
-      registerRequest.password = request.password();
-      final var registerResponse =
-        this.client.register(registerRequest);
-
-      if (registerResponse instanceof PMatrixJSON.PError) {
-        final var error = (PMatrixJSON.PError) registerResponse;
+      final var nonceResponse = this.client.nonce();
+      if (nonceResponse instanceof PError) {
+        final var error = (PError) nonceResponse;
         throw new PServerControllerException(
           this.strings.format(
-            "errorServerRegister", error.errorCode, error.errorMessage));
+            "errorServerRegister",
+            error.errorCode,
+            error.errorMessage)
+        );
       }
 
-      this.tokens.remove(request.token());
+      final var nonceR = (PMatrixJSON.PAdminNonce) nonceResponse;
+
+      final var registerResponse =
+        this.client.register(
+          request.registrationSharedSecret(),
+          nonceR.nonce,
+          request.userName(),
+          request.password()
+        );
+
+      if (registerResponse instanceof PError) {
+        final var error = (PError) registerResponse;
+        throw new PServerControllerException(
+          this.strings.format(
+            "errorServerRegister",
+            error.errorCode,
+            error.errorMessage)
+        );
+      }
+
+      this.tokens.remove(token);
+      LOG.info(
+        "consumed token {} for user '{}' ({} tokens left)",
+        token,
+        request.userName(),
+        Integer.valueOf(this.tokenCount())
+      );
     } catch (final IOException e) {
       LOG.error("i/o error: ", e);
       throw new PServerControllerException(e);
     }
+  }
+
+  /**
+   * @return The number of active tokens
+   */
+
+  public int tokenCount()
+  {
+    return this.tokens.size();
   }
 }
