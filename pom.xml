@@ -27,7 +27,6 @@
 
   <properties>
     <com.io7m.jxtrand.version>1.0.0</com.io7m.jxtrand.version>
-    <com.io7m.xstructural.version>0.0.1</com.io7m.xstructural.version>
     <io7m.api.previousVersion>1.0.0</io7m.api.previousVersion>
     <jackson.version>2.12.2</jackson.version>
     <jetty.version>10.0.2</jetty.version>
