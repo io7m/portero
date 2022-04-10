@@ -26,12 +26,12 @@
   </modules>
 
   <properties>
-    <com.io7m.jxtrand.version>1.0.0</com.io7m.jxtrand.version>
+    <com.io7m.jxtrand.version>1.1.0</com.io7m.jxtrand.version>
     <io7m.api.previousVersion>1.0.0</io7m.api.previousVersion>
-    <jackson.version>2.12.2</jackson.version>
-    <jetty.version>10.0.2</jetty.version>
-    <junit.version>5.7.0-M1</junit.version>
-    <org.immutables.version>2.8.3</org.immutables.version>
+    <jackson.version>2.13.2</jackson.version>
+    <jetty.version>11.0.9</jetty.version>
+    <junit.version>5.8.2</junit.version>
+    <org.immutables.version>2.9.0</org.immutables.version>
   </properties>
 
   <licenses>
