@@ -196,7 +196,9 @@ public final class PMatrixClient
           .header("User-Agent", agent())
           .build();
       final var response =
-        this.client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+        this.client.send(
+          httpRequest,
+          HttpResponse.BodyHandlers.ofInputStream());
 
       final var statusCode =
         response.statusCode();

@@ -18,8 +18,8 @@ package com.io7m.portero.server.internal;
 
 import com.io7m.jxtrand.vanilla.JXTAbstractStrings;
 import com.io7m.portero.server.PServerConfiguration;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 

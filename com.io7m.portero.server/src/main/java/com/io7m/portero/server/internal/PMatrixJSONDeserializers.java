@@ -38,8 +38,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A deserializer that only allows for deserializing a fixed set of classes,
- * for reasons of security.
+ * A deserializer that only allows for deserializing a fixed set of classes, for
+ * reasons of security.
  */
 
 final class PMatrixJSONDeserializers extends SimpleDeserializers
