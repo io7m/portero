@@ -431,7 +431,7 @@ public final class PServerMainTest
     LOG.debug("received: {}", body);
     parseXML(body);
     assertTrue(body.contains("chat.example.com"));
-    assertTrue(body.contains("java.net.ConnectException: Connection refused"));
+    assertTrue(body.contains("java.net.ConnectException"));
   }
 
   /**
