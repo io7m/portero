@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>7.0.0</version>
+    <version>7.4.0</version>
   </parent>
 
   <groupId>com.io7m.portero</groupId>
@@ -69,7 +69,7 @@
     </site>
     <repository>
       <id>sonatype-nexus-staging</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 
@@ -173,7 +173,7 @@
       <dependency>
         <groupId>com.io7m.primogenitor</groupId>
         <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>7.0.0</version>
+        <version>7.4.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.xstructural</groupId>
