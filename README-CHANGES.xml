@@ -4,7 +4,7 @@
     <c:release date="2021-05-29T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="1.0.0">
       <c:changes/>
     </c:release>
-    <c:release date="2021-05-29T14:40:19+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="2.0.0">
+    <c:release date="2021-05-29T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.portero" version="2.0.0">
       <c:changes>
         <c:change date="2021-05-29T00:00:00+00:00" summary="Switch to Synapse-specific APIs for user registration"/>
         <c:change date="2021-05-29T00:00:00+00:00" summary="Add a configuration option to control token expiration">
@@ -12,6 +12,44 @@
             <c:ticket id="2"/>
           </c:tickets>
         </c:change>
+      </c:changes>
+    </c:release>
+    <c:release date="2022-11-17T18:59:18+00:00" is-open="true" ticket-system="com.github.io7m.portero" version="2.1.0">
+      <c:changes>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update org.slf4j:slf4j-api 2.0.0-alpha7 → 2.0.3."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update ch.qos.logback:logback-classic 1.3.0-alpha14 → 1.4.4."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update org.mock-server:mockserver-netty 5.13.2 → 5.14.0."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update nl.jqno.equalsverifier:equalsverifier 3.10 → 3.11."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update com.io7m.xstructural:com.io7m.xstructural.cmdline 1.4.0 → 1.8.0."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update com.io7m.claypot:com.io7m.claypot.core 0.0.6 → 0.0.8."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update org.apache.commons:commons-text 1.9 → 1.10.0."/>
+        <c:change date="2022-11-17T18:58:45+00:00"
+                  summary="Update com.io7m.jdeferthrow:com.io7m.jdeferthrow.core 1.1.0 → 1.2.0."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.immutables:value 2.9.0 → 2.9.2."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.eclipse.jetty:jetty-http 11.0.9 → 11.0.12."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.eclipse.jetty:jetty-server 11.0.9 → 11.0.12."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.eclipse.jetty:jetty-util 11.0.9 → 11.0.12."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update com.fasterxml.jackson.core:jackson-annotations 2.13.2 → 2.14.0."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update com.fasterxml.jackson.core:jackson-core 2.13.2 → 2.14.0."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update com.fasterxml.jackson.core:jackson-databind 2.13.2 → 2.14.0."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.junit.jupiter:junit-jupiter-api 5.8.2 → 5.9.1."/>
+        <c:change date="2022-11-17T18:59:39+00:00"
+                  summary="Update org.junit.jupiter:junit-jupiter-engine 5.8.2 → 5.9.1."/>
       </c:changes>
     </c:release>
   </c:releases>
